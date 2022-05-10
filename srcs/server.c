@@ -6,12 +6,12 @@
 /*   By: afuchs <alexis.t.fuchs@gmail.com>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 14:08:41 by afuchs            #+#    #+#             */
-/*   Updated: 2022/05/11 01:10:54 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/05/11 01:35:12 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "minitalk.h"
 
-pid_t	cpid;
+pid_t	g_cpid;
 
 static void	print_lst(t_list **sentence)
 {
@@ -27,16 +27,17 @@ static void	print_lst(t_list **sentence)
 		*(str + i++) = *((char *)next->content);
 		next = next->next;
 	}
-	if (cpid)
+	if (g_cpid)
 	{
 		ft_printf("%s\n", str);
-		cpid = 0;
+		kill(g_cpid, SIGUSR2);
+		g_cpid = 0;
 	}
 	else
-		cpid = ft_atoi(str);
+		g_cpid = ft_atoi(str);
 	free(str);
 	ft_lstclear(sentence, &free);
-	if (cpid)
+	if (g_cpid)
 		usleep(100);
 }
 
@@ -65,14 +66,14 @@ static void	catch_sentence(int sign)
 	write_bit((char *)new->content, sign, i);
 	if (i && (i % 8) == 7 && *((char *)new->content) == '\0')
 	{
-			print_lst(&sentence);
-			new = (void *)0;
-			i = 0;
+		print_lst(&sentence);
+		new = (void *)0;
+		i = 0;
 	}
 	else
 		i++;
-	if (cpid)
-		kill(cpid, SIGUSR1);
+	if (g_cpid)
+		kill(g_cpid, SIGUSR1);
 }
 
 int	main(void)

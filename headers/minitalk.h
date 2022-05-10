@@ -6,12 +6,12 @@
 /*   By: afuchs <alexis.t.fuchs@gmail.com>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 16:02:43 by afuchs            #+#    #+#             */
-/*   Updated: 2022/05/10 16:03:44 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/05/11 01:34:12 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #ifndef MINITALK_H
 # define MINITALK_H
-#include "libft.h"
-#include <signal.h>
+# include "libft.h"
+# include <signal.h>
 
 #endif
