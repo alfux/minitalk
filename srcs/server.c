@@ -6,13 +6,90 @@
 /*   By: afuchs <alexis.t.fuchs@gmail.com>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 14:08:41 by afuchs            #+#    #+#             */
-/*   Updated: 2022/05/10 15:04:40 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/05/11 01:10:54 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "libft.h"
+#include "minitalk.h"
+
+pid_t	cpid;
+
+static void	print_lst(t_list **sentence)
+{
+	char	*str;
+	t_list	*next;
+	size_t	i;
+
+	str = ft_calloc(ft_lstsize(*sentence), sizeof (char));
+	i = 0;
+	next = *sentence;
+	while (next)
+	{
+		*(str + i++) = *((char *)next->content);
+		next = next->next;
+	}
+	if (cpid)
+	{
+		ft_printf("%s\n", str);
+		cpid = 0;
+	}
+	else
+		cpid = ft_atoi(str);
+	free(str);
+	ft_lstclear(sentence, &free);
+	if (cpid)
+		usleep(100);
+}
+
+static void	write_bit(char *octet, int sign, size_t i)
+{
+	if (sign == SIGUSR1)
+		*octet = *octet | 0 << (7 - (i % 8));
+	else
+		*octet = *octet | 1 << (7 - (i % 8));
+}
+
+static void	catch_sentence(int sign)
+{
+	static size_t	i;
+	static t_list	*sentence;
+	static t_list	*new;
+
+	if (i % 8 == 0)
+	{
+		new = ft_lstnew(ft_calloc(1, sizeof (char)));
+		if (!i)
+			sentence = new;
+		else
+			(*ft_lstlast(sentence)).next = new;
+	}
+	write_bit((char *)new->content, sign, i);
+	if (i && (i % 8) == 7 && *((char *)new->content) == '\0')
+	{
+			print_lst(&sentence);
+			new = (void *)0;
+			i = 0;
+	}
+	else
+		i++;
+	if (cpid)
+		kill(cpid, SIGUSR1);
+}
 
 int	main(void)
 {
-	ft_printf("Hellor je suis le server\n");
+	sigset_t			set;
+	struct sigaction	act;
+
+	ft_printf("SERVER PID: %i\n", getpid());
+	ft_bzero(&act, sizeof (struct sigaction));
+	sigemptyset(&set);
+	sigaddset(&set, SIGUSR1);
+	sigaddset(&set, SIGUSR2);
+	act.sa_handler = &catch_sentence;
+	act.sa_mask = set;
+	sigaction(SIGUSR1, &act, (void *)0);
+	sigaction(SIGUSR2, &act, (void *)0);
+	while (1)
+		pause();
 	return (0);
 }

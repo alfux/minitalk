@@ -14,6 +14,8 @@ OPATHC	= objc/
 
 OPATHS	= objs/
 
+HPATH	= headers/
+
 OBJC	= ${SRCC:%.c=$(OPATHC)%.o}
 
 OBJS	= ${SRCS:%.c=$(OPATHS)%.o}
@@ -22,7 +24,7 @@ CLIENT	= client
 
 SERVER	= server
 
-OPTION	= -Wall -Wextra -Werror -I$(LPATH)
+OPTION	= -Wall -Wextra -Werror -I$(LPATH) -I$(HPATH)
 
 GREEN	= \033[32m
 
@@ -61,7 +63,7 @@ $(OPATHS)		:
 					@echo "$(GREY)$(OPATHS) directory created.$(WHITE)"
 
 $(LIBFT)		:
-					@(cd $(LPATH) && $(MAKE) $(SILDIR))
+					@(cd $(LPATH) && $(MAKE) bonus $(SILDIR))
 					@(echo "$(GREEN)Libft compiled$(WHITE)")
 
 clean			:
@@ -70,7 +72,7 @@ clean			:
 					@(echo "$(RED)Object files removed.$(WHITE)")
 
 fclean			:	clean
-					@(rm $(CLIENT) $(SERVER))
+					@(rm -rf $(CLIENT) $(SERVER))
 					@(cd $(LPATH) && $(MAKE) $(SILDIR) $@)
 					@(echo "$(RED)Libft, $(CLIENT) and $(SERVER) removed.$(WHITE)")
 
