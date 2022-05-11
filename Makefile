@@ -16,6 +16,8 @@ OPATHS	= objs/
 
 HPATH	= headers/
 
+HEADERS	= $(HPATH)minitalk.h $(LPATH)libft.h
+
 OBJC	= ${SRCC:%.c=$(OPATHC)%.o}
 
 OBJS	= ${SRCS:%.c=$(OPATHS)%.o}
@@ -46,11 +48,11 @@ $(SERVER)		:	$(LIBFT) $(OBJS)
 					@gcc $(OPTION) $(OBJS) $(LIBFT) -o $@
 					@echo "$(GREEN)Server compiled.$(WHITE)"
 
-$(OPATHC)%.o	:	$(SPATHC)%.c $(OPATHC)
+$(OPATHC)%.o	:	$(SPATHC)%.c $(OPATHC) $(HEADERS)
 					@gcc -c $(OPTION) $< -o $@
 					@echo "$(GREY)$@ created.$(WHITE)"
 
-$(OPATHS)%.o	:	$(SPATHS)%.c $(OPATHS)
+$(OPATHS)%.o	:	$(SPATHS)%.c $(OPATHS) $(HEADERS)
 					@gcc -c $(OPTION) $< -o $@
 					@echo "$(GREY)$@ created.$(WHITE)"
 

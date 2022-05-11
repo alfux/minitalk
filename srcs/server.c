@@ -6,91 +6,78 @@
 /*   By: afuchs <alexis.t.fuchs@gmail.com>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 14:08:41 by afuchs            #+#    #+#             */
-/*   Updated: 2022/05/11 01:35:12 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/05/11 15:09:22 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "minitalk.h"
 
-pid_t	g_cpid;
+pid_t	cpid;
 
-static void	print_lst(t_list **sentence)
+static void	init_sig(t_sig *act, void (*f)(int, siginfo_t *, void *))
 {
-	char	*str;
-	t_list	*next;
-	size_t	i;
-
-	str = ft_calloc(ft_lstsize(*sentence), sizeof (char));
-	i = 0;
-	next = *sentence;
-	while (next)
-	{
-		*(str + i++) = *((char *)next->content);
-		next = next->next;
-	}
-	if (g_cpid)
-	{
-		ft_printf("%s\n", str);
-		kill(g_cpid, SIGUSR2);
-		g_cpid = 0;
-	}
-	else
-		g_cpid = ft_atoi(str);
-	free(str);
-	ft_lstclear(sentence, &free);
-	if (g_cpid)
-		usleep(100);
+	ft_bzero(act, sizeof (t_sig));
+	sigemptyset(&act->sa_mask);
+	act->sa_flags = SA_SIGINFO;
+	act->sa_sigaction = f;
+	sigaction(SIGUSR1, act, (void *)0);
+	sigaction(SIGUSR2, act, (void *)0);
 }
 
-static void	write_bit(char *octet, int sign, size_t i)
+static void	first_sig(int sig, siginfo_t *info, void *ucontext)
 {
-	if (sign == SIGUSR1)
-		*octet = *octet | 0 << (7 - (i % 8));
-	else
-		*octet = *octet | 1 << (7 - (i % 8));
+	(void)sig;
+	(void)ucontext;
+	cpid = info->si_pid;
+	kill(info->si_pid, SIGUSR1);
 }
 
-static void	catch_sentence(int sign)
+static void	sig_handle(int sig, siginfo_t *info, void *ucontext)
 {
-	static size_t	i;
-	static t_list	*sentence;
-	static t_list	*new;
+	static char	i;
+	static char	c;
 
-	if (i % 8 == 0)
+	if (!info && !ucontext)
 	{
-		new = ft_lstnew(ft_calloc(1, sizeof (char)));
-		if (!i)
-			sentence = new;
-		else
-			(*ft_lstlast(sentence)).next = new;
-	}
-	write_bit((char *)new->content, sign, i);
-	if (i && (i % 8) == 7 && *((char *)new->content) == '\0')
-	{
-		print_lst(&sentence);
-		new = (void *)0;
 		i = 0;
+		c = 0;
+		return ;
+	}
+	if (sig == SIGUSR2)
+		c = c | (1 << (7 - i));
+	if (i == 7)
+	{
+		ft_putchar_fd(c, 1);
+		if (c == '\0')
+			cpid = 0;
+		sig_handle(0, (void *)0, (void *)0);
 	}
 	else
 		i++;
-	if (g_cpid)
-		kill(g_cpid, SIGUSR1);
+	kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
 {
-	sigset_t			set;
-	struct sigaction	act;
+	t_sig	act;
 
-	ft_printf("SERVER PID: %i\n", getpid());
-	ft_bzero(&act, sizeof (struct sigaction));
-	sigemptyset(&set);
-	sigaddset(&set, SIGUSR1);
-	sigaddset(&set, SIGUSR2);
-	act.sa_handler = &catch_sentence;
-	act.sa_mask = set;
-	sigaction(SIGUSR1, &act, (void *)0);
-	sigaction(SIGUSR2, &act, (void *)0);
+	ft_printf("\033[33mServer PID: %i\033[0m\n", getpid());
+	init_sig(&act, &first_sig);
 	while (1)
-		pause();
+	{
+		if (act.sa_sigaction == &first_sig)
+		{
+			pause();
+			init_sig(&act, &sig_handle);
+		}
+		else if (!cpid)
+			init_sig(&act, &first_sig);
+		else if (!sleep(2))
+		{
+			ft_putstr_fd("\033[31mSignal lost\n\033[0m", 2);
+			sig_handle(0, (void *)0, (void *)0);
+			kill(cpid, SIGUSR2);
+			init_sig(&act, &first_sig);
+		}
+	}
 	return (0);
 }
