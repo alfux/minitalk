@@ -6,10 +6,19 @@
 /*   By: afuchs <alexis.t.fuchs@gmail.com>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 14:07:17 by afuchs            #+#    #+#             */
-/*   Updated: 2022/05/11 13:56:36 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/05/11 18:50:18 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "minitalk.h"
+
+static void	sig_handle(int sig)
+{
+	if (sig == SIGUSR2)
+	{
+		ft_putstr_fd("\033[31mAn error occured\033[0m\n", 2);
+		exit(EXIT_FAILURE);
+	}
+}
 
 static void	send_bit(pid_t pid, unsigned char c)
 {
@@ -17,7 +26,8 @@ static void	send_bit(pid_t pid, unsigned char c)
 		kill(pid, SIGUSR1);
 	else
 		kill(pid, SIGUSR2);
-	pause();
+	if (!usleep(1000000))
+		sig_handle(SIGUSR2);
 }
 
 static void	send_to_serv(pid_t pid, char *str)
@@ -41,19 +51,12 @@ static void	send_to_serv(pid_t pid, char *str)
 		send_bit(pid, '\0');
 }
 
-static void	sig_handle(int sig)
-{
-	if (sig == SIGUSR2)
-	{
-		ft_putstr_fd("\033[31mAn error occured\033[0m\n", 2);
-		exit(EXIT_FAILURE);
-	}
-}
-
 static void	init_sig(t_sig *act)
 {
 	ft_bzero(act, sizeof (t_sig));
 	sigemptyset(&act->sa_mask);
+	sigaddset(&act->sa_mask, SIGUSR1);
+	sigaddset(&act->sa_mask, SIGUSR2);
 	act->sa_handler = &sig_handle;
 	sigaction(SIGUSR1, act, (void *)0);
 	sigaction(SIGUSR2, act, (void *)0);
@@ -66,7 +69,10 @@ int	main(int argc, char **argv)
 	size_t	i;
 
 	if (argc != 3)
+	{
+		ft_putstr_fd("\033[31mIncorrect parameters\033[0m\n", 2);
 		return (1);
+	}
 	i = 0;
 	while (*(*(argv + 1) + i))
 		if (!ft_isdigit(*(*(argv + 1) + i++)))
