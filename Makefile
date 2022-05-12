@@ -78,6 +78,6 @@ fclean			:	clean
 					@(cd $(LPATH) && $(MAKE) $(SILDIR) $@)
 					@(echo "$(RED)Libft, $(CLIENT) and $(SERVER) removed.$(WHITE)")
 
-re				: fclean all
+re				: fclean $(OPATHC) $(OPATHS) all
 
 .PHONY			: all clean fclean re
