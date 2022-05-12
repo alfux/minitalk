@@ -80,4 +80,6 @@ fclean			:	clean
 
 re				: fclean $(OPATHC) $(OPATHS) all
 
-.PHONY			: all clean fclean re
+bonus			: re
+
+.PHONY			: all clean fclean re bonus
