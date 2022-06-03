@@ -6,7 +6,7 @@
 /*   By: afuchs <alexis.t.fuchs@gmail.com>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 14:08:41 by afuchs            #+#    #+#             */
-/*   Updated: 2022/05/11 18:57:50 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/06/03 14:29:19 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "minitalk.h"
@@ -63,7 +63,7 @@ static void	sendsig(t_sig *act)
 	static char	i;
 
 	kill(g_cpid, SIGUSR1);
-	if (!usleep(1) && i < 10)
+	if (!usleep(100) && i < 10)
 	{
 		i++;
 		sendsig(act);
