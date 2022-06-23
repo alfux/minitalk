@@ -6,7 +6,7 @@
 /*   By: afuchs <afuchs@student.42mulhouse.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/24 13:45:13 by afuchs            #+#    #+#             */
-/*   Updated: 2022/03/02 15:17:49 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/06/24 01:30:27 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "libft.h"
@@ -64,7 +64,7 @@ char	**ft_split(const char *s, char c)
 	*(split + data) = (char *)0;
 	i = 0;
 	j = 0;
-	while (i < data)
+	while (i < data && !(i > 0 && !*(split + i - 1)))
 	{
 		while (*(s + j) == c && *(s + j))
 			j++;
