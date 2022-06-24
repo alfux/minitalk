@@ -6,7 +6,7 @@
 /*   By: afuchs <afuchs@student.42mulhouse.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/24 13:45:13 by afuchs            #+#    #+#             */
-/*   Updated: 2022/06/24 01:30:27 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/06/24 02:21:06 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "libft.h"
@@ -47,6 +47,22 @@ static size_t	ft_strlen_c(const char *str, char c)
 	return (i);
 }
 
+static char	**verify(char **spl, size_t data)
+{
+	size_t	i;
+
+	i = 0;
+	while (*(spl + i))
+		i++;
+	if (i == data)
+		return (spl);
+	i = 0;
+	while (*(spl + i))
+		free(*(spl + i++));
+	free(spl);
+	return ((char **)0);
+}
+
 char	**ft_split(const char *s, char c)
 {
 	char	**split;
@@ -73,5 +89,5 @@ char	**ft_split(const char *s, char c)
 		j += len;
 		i++;
 	}
-	return (split);
+	return (verify(split, data));
 }
