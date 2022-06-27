@@ -6,7 +6,7 @@
 /*   By: afuchs <afuchs@student.42mulhouse.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/24 13:45:13 by afuchs            #+#    #+#             */
-/*   Updated: 2022/06/24 02:21:06 by afuchs           ###   ########.fr       */
+/*   Updated: 2022/06/27 17:15:54 by afuchs           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "libft.h"
@@ -51,10 +51,7 @@ static char	**verify(char **spl, size_t data)
 {
 	size_t	i;
 
-	i = 0;
-	while (*(spl + i))
-		i++;
-	if (i == data)
+	if (!data || *(spl + data - 1))
 		return (spl);
 	i = 0;
 	while (*(spl + i))
